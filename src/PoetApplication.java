@@ -6,32 +6,34 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import javax.swing.*;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import org.json.simple.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.json.simple.JSONValue;
+import org.json.*;
 
 public class PoetApplication {
 	
 	private static JFrame frame;
 	private static JTextField poetField;
 	private static JTextArea poetDisplay;
-	private static JButton fetchButton;
-	private static String apikey="bWFyeWFtOnBhc3N3b3Jk";
+	private static JButton fetchButton;   	
 	private static URL url;
-	private static String fetchpoetData(String poet) {
+	private static String fetchpoetData(String literature) {
 		try {
-			URL url = new URL ("https://api.ganjoor.net/api/ganjoor/poets?q=\"+ poet + \"&appid\" + apikey");
+			URL url = new URL ("https://api.ganjoor.net/api/ganjoor/poet?q="+literature);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("Get");
+			connection.setRequestMethod("GET");
 			
 			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream())); 
 			String response = "";
-			String line = reader.readLine();
+			String line ;
 			
 			while ((line = reader.readLine()) !=null) {
 				response += line ;
@@ -40,23 +42,29 @@ public class PoetApplication {
 			reader.close();
 			
 			JSONObject jsonObject = (JSONObject) JSONValue.parse(response.toString());
-			JSONObject mainObj = (JSONObject) jsonObject.get("main");
+			JSONObject poetObj = (JSONObject) jsonObject.get("poet");
 			
-			String poet1 = (String) mainObj.get("poet");
+			String name = (String) poetObj.get("name");
+			String nickname = (String) poetObj.get("nickname "); 
+	
+			JSONArray catArray = (JSONArray) jsonObject.get("cat");
+			JSONObject cat = (JSONObject) catArray.get(0);
+			String description = (String) cat.get("description");
+			
+			return "Description :" +description + "name" + name+ "\nnickname" + nickname ;
+			
 		}catch(Exception e){
-				return "Failed to fetch poet .Please Check Your Internet";
-				
+				return "Failed to fetch poet .Please Check Your Internet";	
 			
 			}
-		
-		
 	} 
+
 	
 	public static void main (String args[]) {
 		
 		frame = new JFrame("PoetApplication");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(300,300);
+		frame.setSize(400,400);
 		frame.setLayout(new FlowLayout());
 		
 		
@@ -73,12 +81,11 @@ public class PoetApplication {
 		
 		fetchButton.addActionListener(new ActionListener() {
 
-			private String poetInfo;
-
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String poet = poetField.getText();
-				String poetData = fetchpoetData(poet);
+				String literature = poetField.getText();
+				String poetInfo = fetchpoetData(literature);
 				poetDisplay.setText(poetInfo);
 			   }
 			});
@@ -86,5 +93,4 @@ public class PoetApplication {
 	}
 	
 	}
-
 
