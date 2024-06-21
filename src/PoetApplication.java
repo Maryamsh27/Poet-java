@@ -27,6 +27,8 @@ public class PoetApplication {
 	private static URL url;
 	private static JTextArea TextArea;
 	private static JButton Button;
+	private static JButton faalButton;
+	private static JTextArea FaalHafez;
 	private static String fetchpoemData(String literature) {
 		try {
 			URL url = new URL ("https://api.ganjoor.net/api/ganjoor/poems/search"+literature);
@@ -56,7 +58,7 @@ public class PoetApplication {
 			String nickname = (String) poet.get("nickname");
 			String description = (String) poet.get("description");
 			
-			return "id:" + id + "Description :" + description + "title" + fulltitle + "\n plainText" + plainText + "\n name :"+ name + "\n nickname :" + nickname;
+			return "ID:" + id + "Description :" + description + "Title" + fulltitle + "\n PlainText" + plainText + "\n Name :"+ name + "\n Nickname :" + nickname;
 			
 		}catch(Exception e){
 				return "Failed to fetch poem .Please Check Your Internet";
@@ -86,7 +88,7 @@ public class PoetApplication {
 			JSONObject poetObj = (JSONObject) jsonObject.get("id");
 			
 			int id = (int) poetObj.get("id");
-			String birthYearInLHijri = (String) poetObj.get("birthYearInLHijri");
+			int birthYearInLHijri = (int) poetObj.get("birthYearInLHijri");
 			String birthPlace = (String) poetObj.get("birthPlace"); 
 			String deathPlace = (String) poetObj.get("deathPlace"); 
 			
@@ -96,7 +98,7 @@ public class PoetApplication {
 			String nickname = (String) poet.get("nickname");
 			String description = (String) poet.get("description");
 			
-			return "ID:" + id + "Description :" + description + "BirthYearInLHijri" + birthYearInLHijri + "\n BirthPlace" + birthPlace + "\n DeathPlace" + deathPlace + "\n Name :"+ name + "\n Nickname :" + nickname;
+			return "ID:" + id + "Description: " + description + "BirthYearInLHijri: " + birthYearInLHijri + "\n BirthPlace: " + birthPlace + "\n DeathPlace: " + deathPlace + "\n Name: "+ name + "\n Nickname: " + nickname;
 			
 		}catch(Exception e){
 				return "Failed to fetch poet .Please Check Your Internet";
@@ -105,6 +107,47 @@ public class PoetApplication {
 			}
 	
 	} 
+	
+	private static String faalHafezData(String Faal) {
+		try {
+			URL url = new URL ("https://api.ganjoor.net/api/ganjoor/hafez/faal");
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			
+			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream())); 
+			String response = "";
+			String line ;
+			
+			while ((line = reader.readLine()) !=null) {
+				response += line ;
+			}
+			
+			reader.close();
+			
+			JSONObject jsonObject = (JSONObject) JSONValue.parse(response.toString());
+			JSONObject poetObj = (JSONObject) jsonObject.get("poet");
+			
+			int id = (int) poetObj.get("id");
+			String fulltitle = (String) poetObj.get("fulltitle");
+			String plainText = (String) poetObj.get("plainText");
+			String poemSummary = (String) poetObj.get("poemSummary");
+			
+	
+			JSONArray poetArray = (JSONArray) jsonObject.get("cat");
+			JSONObject poet = (JSONObject) poetArray.get(0);
+			String name = (String) poet.get("name");
+			String nickname = (String) poet.get("nickname");
+			String description = (String) poet.get("description");
+			
+			return "ID: " + id + "Description: " + description + "Title: " + fulltitle + "\n PlainText: " + plainText +"\n PoemSummary: " + poemSummary + "\n Name: "+ name + "\n Nickname: " + nickname;
+			
+		}catch(Exception e){
+				return "Failed to fetch faal .Please Check Your Internet";
+				
+			
+			}
+	
+	}
 	
 	public static void main (String args[]) {
 		
@@ -116,18 +159,21 @@ public class PoetApplication {
 		
 		poetField = new JTextField(16);
 		fetchButton = new JButton("Poem");
-		Button = new JButton("Bio");
+		Button = new JButton("Bio (poet) ");
+		faalButton = new JButton("Aim & Press (Faal Hafez) ");
 		poetDisplay = new JTextArea(30,30);
-		TextArea = new JTextArea(30,30);
+		TextArea = new JTextArea(20,20);
+		FaalHafez = new JTextArea(30,30);
 		poetDisplay.setEditable(false);
 		
 		frame.add( new JLabel("Enter the part of poem :"));
 		frame.add(poetField);
 		frame.add(fetchButton);
-		frame.add(Button);	
+		frame.add(Button);
+		frame.add(faalButton);
 		frame.add(poetDisplay);
 		frame.add(TextArea);
-		
+		frame.add(FaalHafez);
 		
 		
 		
@@ -152,8 +198,18 @@ public class PoetApplication {
 				TextArea.setText(poetInfo);
 			   }
 			});
+		
+		faalButton.addActionListener(new ActionListener() {
+
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String Faal = poetField.getText();
+				String poetInfo = faalHafezData(Faal);
+				FaalHafez.setText(poetInfo);
+			   }
+			});
 		frame.setVisible(true);
 	}
 	
 	}
-
